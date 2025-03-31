@@ -7,8 +7,9 @@ import axios from 'axios';
 //const socket = io('http://localhost:5000');
 
 function TextEditor() {
-  const { id } = useParams();
-  const versionId = id
+  const { docId,verId } = useParams();
+  const documentId = docId;
+  const versionId = verId || localStorage.getItem('versionId')
   const [content, setContent] = useState('');
   const [saved, setSaved] = useState(false);
 
@@ -38,7 +39,7 @@ function TextEditor() {
     return () => {
       //socket.off('textUpdate');
     };
-  }, [versionId]);
+  }, []);
 
   const handleChange = (e) => {
     const newContent = e.target.value;
@@ -49,29 +50,40 @@ function TextEditor() {
   };
 
   const handleSave = () => {
-    axios.post(`http://localhost:5000/document/${versionId}/save`, { content })
+    let userId = localStorage.getItem('userId')
+    axios.post(`http://localhost:5000/api/documents/version/${versionId}`, { content,userId,documentId })
       .then(res => {
+        console.log("res-------------------------------->",res.data)
         if (res.data.success) {
           setSaved(true);
           setTimeout(() => setSaved(false), 2000);
         }
       });
   };
-
+  const handleSync = () =>{
+    console.log("handleSync-------------------->")
+  }
   return (
     <div>
       <h2>Realtime Text Editor</h2>
       <textarea 
         value={content}
+        disabled={verId !== undefined || verId !== null}
         onChange={handleChange}
         rows="20"
         cols="80"
       ></textarea>
-      <div>
+      {(verId === null || verId === undefined) ?
+      (<div>
         <button onClick={handleSave}>Save</button>
         <button onClick={handleSave}>Publish</button>
         {saved && <span style={{ marginLeft: '10px' }}>Saved!</span>}
-      </div>
+      </div>):
+      <div>
+        <button onClick={handleSync}>Sync</button>
+      </div>  
+    }
+      
     </div>
   );
 }

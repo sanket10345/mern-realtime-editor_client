@@ -30,7 +30,8 @@ function App() {
         <Router>
           <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/docs/:id" element={<TextEditor />} />
+          <Route path="/doc/:docId/version/:verId" element={<TextEditor />} />
+          <Route path="/doc/:docId" element={<TextEditor />} />
           </Routes>
         </Router>
         // <HomePage 
